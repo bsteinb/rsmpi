@@ -23,7 +23,7 @@ use ffi::{MPI_Message, MPI_Request, MPI_Status};
 
 use datatype::traits::*;
 use raw::traits::*;
-use request::{Request, Scope, StaticScope};
+use request::{AsyncRequest, Request, Scope, StaticScope};
 use topology::{AnyProcess, CommunicatorRelation, Process, Rank};
 use topology::traits::*;
 
