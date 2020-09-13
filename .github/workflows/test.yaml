@@ -1,0 +1,53 @@
+name: rsmpi Testing
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - '*'
+defaults:
+  run:
+    shell: bash
+jobs:
+  test:
+    name: Test rsmpi
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.rust == 'nightly' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: 
+          - windows-latest
+          - ubuntu-latest
+          - macos-latest
+        rust:
+          - 1.36.0 # First version with MaybeUninit
+          - stable
+          - nightly
+    steps:
+      - name: Install LLVM (Ubuntu)
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y llvm-10-dev
+      - name: Install LLVM (Mac)
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: |
+          brew install llvm@10
+          echo "::set-env name=PATH::$(brew --prefix)/bin:$PATH"
+      - name: Install LLVM (Windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: |
+          choco install llvm --version 10.0.0 -y
+          echo "::set-env name=PATH::/c/Program Files/LLVM/bin:$PATH"
+      - name: List Clangs
+        run: which -a clang
+      - name: Clang Version
+        run: clang --version
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{matrix.rust}}
+      - name: Rust Version
+        run: rustc +${{matrix.rust}} --version
